@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalTime;
+import java.util.List;
 
 @Repository
 public interface PTRepository extends JpaRepository<PublicTransportRoute, Long> {
@@ -16,9 +17,12 @@ public interface PTRepository extends JpaRepository<PublicTransportRoute, Long> 
     PublicTransportRoute findPublicTransportRouteByArrivalTime(LocalTime arrival);
     PublicTransportRoute findPublicTransportRouteByDepartureTime(LocalTime departure);
     PublicTransportRoute findPublicTransportRouteByDuration(int duration);
-    PublicTransportRoute findPublicTransportRouteByStartPointAndEndPoint(String startPoint, String endPoint);
+    List<PublicTransportRoute> findPublicTransportRouteByStartPointAndEndPoint(String startPoint, String endPoint);
     PublicTransportRoute findPublicTransportRouteByStartPoint(String startPoint);
     PublicTransportRoute findPublicTransportRouteByEndPoint(String endPoint);
     PublicTransportRoute findPublicTransportRouteByRouteTyp(String routeTyp);
+    List<PublicTransportRoute> findPublicTransportRouteByDelayingInfoNotNull();
+    List<PublicTransportRoute>findPublicTransportRouteByFavorite(boolean favorite);
+
 
 }
