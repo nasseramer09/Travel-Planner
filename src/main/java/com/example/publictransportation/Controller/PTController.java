@@ -64,7 +64,7 @@ public class PTController {
         return ResponseEntity.ok(routeInfo);
     }
     @GetMapping("searchForTransportation")
-    public ResponseEntity<List<Map<String,Object>>>getAllPublicTransportationBasedOnFromAndTo(@RequestParam String from, @RequestParam String to, String travelTime){
+    public ResponseEntity<Map<String,Object>>transportationSearch(@RequestParam String from, @RequestParam String to, String travelTime){
         try{
         FakeCity routes = ptServices.getRouteByTravelFromAndTravelTo(from, to, LocalTime.parse(travelTime));
 
@@ -77,9 +77,7 @@ public class PTController {
             info.put("Arrival time", routes.getArrivalTime());
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
-            List<Map<String,Object>> routeInfo = new ArrayList<>();
-            routeInfo.add(info);
-            return ResponseEntity.ok(routeInfo);
+            return ResponseEntity.ok(info);
         }else {
             return ResponseEntity.notFound().build();
         }
