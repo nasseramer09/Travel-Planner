@@ -77,8 +77,6 @@ public class PTController {
             info.put("Arrival time", routes.getArrivalTime());
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
-           // List<Map<String,Object>> routeInfo = new ArrayList<>();
-            //routeInfo.add(info);
             return ResponseEntity.ok(info);
         }else {
             return ResponseEntity.notFound().build();
