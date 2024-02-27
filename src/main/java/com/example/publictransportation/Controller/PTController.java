@@ -9,7 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Controller
@@ -32,7 +35,7 @@ public class PTController {
 
 
         try {
-            ptServices.getRouteByTravelFromAndTravelTo(startPoint, endPoint );
+            ptServices.getRouteByTravelFromAndTravelTo(startPoint, endPoint, departureTime );
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Some thing went wrong ");
@@ -40,17 +43,49 @@ public class PTController {
 
     }
     @GetMapping("allTransportation")
-    public ResponseEntity<List<FakeCity>> getAllPublicTransportation(){
+    public ResponseEntity<List<Map<String, Object>>> getAllPublicTransportation(){
+
         List<FakeCity> routes = ptServices.getAllRouts();
         if (routes.isEmpty()){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(routes);
+        List<Map<String, Object>> routeInfo= new ArrayList<>();
+        for (FakeCity route:routes
+             ) {
+            Map<String, Object>info= new HashMap<>();
+            info.put("Station Name", route.getStationName());
+            info.put("Transport typ", route.getTransportTyp());
+            info.put("Departure time", route.getDepartureTime());
+            info.put("Arrival time", route.getArrivalTime());
+            info.put("Changes", route.getChanges());
+            info.put("Travel Duration", route.getTravelDuration());
+            routeInfo.add(info);
+        }
+        return ResponseEntity.ok(routeInfo);
     }
     @GetMapping("searchForTransportation")
-    public ResponseEntity<FakeCity>getAllPublicTransportationBasedOnFromAndTo(@RequestParam String from, @RequestParam String to){
-        FakeCity routes = ptServices.getRouteByTravelFromAndTravelTo(from, to);
-        return ResponseEntity.ok(routes);
+    public ResponseEntity<List<Map<String,Object>>>getAllPublicTransportationBasedOnFromAndTo(@RequestParam String from, @RequestParam String to, String travelTime){
+        try{
+        FakeCity routes = ptServices.getRouteByTravelFromAndTravelTo(from, to, LocalTime.parse(travelTime));
+
+        if (routes!=null){
+            Map<String, Object> info = new HashMap<>();
+
+            info.put("Station Name", routes.getStationName());
+            info.put("Transport typ", routes.getTransportTyp());
+            info.put("Departure time", routes.getDepartureTime());
+            info.put("Arrival time", routes.getArrivalTime());
+            info.put("Changes", routes.getChanges());
+            info.put("Travel Duration", routes.getTravelDuration());
+            List<Map<String,Object>> routeInfo = new ArrayList<>();
+            routeInfo.add(info);
+            return ResponseEntity.ok(routeInfo);
+        }else {
+            return ResponseEntity.notFound().build();
+        }
+       }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @GetMapping("favoriteTransportation")
