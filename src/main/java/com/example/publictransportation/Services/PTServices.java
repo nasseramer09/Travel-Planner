@@ -27,7 +27,28 @@ public class PTServices {
     }
 
     public FakeCity getRouteByTravelFromAndTravelTo(String from, String to, LocalTime departureTime){
-     return  routeCalculation(from,to, departureTime);
+        FakeCity route = new FakeCity();
+
+        FakeCity fromStation=fakeCityRepository.findByStationNameIgnoreCase(from);
+        FakeCity toStation=fakeCityRepository.findByStationNameIgnoreCase(to);
+        if (fromStation !=null && toStation !=null){
+
+            long travelHours=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.HOURS);
+            long traveMinutes=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.MINUTES)%60;
+
+            LocalTime arrivalTime=departureTime.plusHours(travelHours).plusMinutes(traveMinutes);
+
+            route.setStationName(toStation.getStationName());
+            route.setTransportTyp(toStation.getTransportTyp());
+            route.setDepartureTime(departureTime);
+            route.setArrivalTime(arrivalTime);
+            route.setChanges(Math.abs(toStation.getChanges()) - fromStation.getChanges());
+            route.setTravelDuration(arrivalTime.minusHours(departureTime.getHour()).minusMinutes(departureTime.getMinute()));
+            return route;
+        }else {
+            return  null;
+        }
+
     }
 
 
@@ -48,40 +69,6 @@ public class PTServices {
             return match == null;
     }
     //Needs to modify and implement calculation logik if startpoint is not a station gå to Inos api and get walkroute and time
-    public FakeCity routeCalculation(String from, String to, LocalTime departureTime){
-        boolean isFromStation = isStation(from);
-        boolean isToStation=isStation(to);
-        FakeCity route = new FakeCity();
-        route.setDepartureTime(departureTime.plusMinutes(5));
-        if (isFromStation&&isToStation){
-
-            FakeCity fromStation=fakeCityRepository.findByStationNameIgnoreCase(from);
-            FakeCity toStation=fakeCityRepository.findByStationNameIgnoreCase(to);
-
-            long travelHours=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.HOURS);
-            long traveMinutes=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.MINUTES)%60;
-
-            LocalTime arrivalTime=departureTime.plusHours(travelHours).plusMinutes(traveMinutes);
-            route.setArrivalTime(arrivalTime);
-
-            long totalHours=departureTime.until(arrivalTime, ChronoUnit.HOURS);
-            long totalMinutes=departureTime.until(arrivalTime, ChronoUnit.MINUTES)%60;
-
-
-           LocalTime calculatedDuration= departureTime.plusHours(totalHours).plusMinutes(totalMinutes);
-           route.setTravelDuration(calculatedDuration);
-
-
-        }else {
-            //get Data from walk api
-        route = null;
-    }
-    return route;
-    }
-    public List<FakeCity> getRouteByTyp(String typ){
-        return fakeCityRepository.findByTransportTyp(typ);
-    }
-
     public void  reportAnIssue(Long id, String issue, LocalTime estimatedDilation){
         FakeCity route = fakeCityRepository.findAllById(id);
         if (route!=null){
