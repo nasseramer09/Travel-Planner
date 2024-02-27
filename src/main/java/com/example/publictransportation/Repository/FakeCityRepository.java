@@ -13,7 +13,7 @@ public interface FakeCityRepository extends JpaRepository<FakeCity, Long> {
    List<FakeCity> findByTransportTyp(String typ);
     FakeCity findAllById(Long id);
 
-    FakeCity findByStationName(String name);
+    FakeCity findByStationNameIgnoreCase(String name);
 
     List<FakeCity>findByChanges(int changes);
 
