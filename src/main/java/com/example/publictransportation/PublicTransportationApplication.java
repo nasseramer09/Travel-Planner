@@ -1,6 +1,6 @@
 package com.example.publictransportation;
 
-import com.example.publictransportation.Repository.PTRepository;
+import com.example.publictransportation.Repository.FakeCityRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,8 +13,7 @@ public class PublicTransportationApplication {
         SpringApplication.run(PublicTransportationApplication.class, args);
     }
     @Bean
-    public CommandLineRunner runner(PTRepository ptRepository){return args -> {
-
+    public CommandLineRunner runner(FakeCityRepository fakeCityRepository){return args -> {
     };
     }
 }
