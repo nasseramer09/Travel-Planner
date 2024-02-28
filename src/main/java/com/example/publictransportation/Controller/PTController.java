@@ -66,7 +66,7 @@ public class PTController {
         return ResponseEntity.ok(routeInfo);
     }
     @GetMapping("searchForTransportation")
-    public ResponseEntity<Map<String,Object>>transportationSearch(@RequestParam String from, @RequestParam String to, String travelTime){
+    public ResponseEntity<Map<String,Object>>transportationSearch(@RequestParam String from, @RequestParam String to, @RequestParam String travelTime){
         try{
         FakeCity routes = ptServices.getRouteByTravelFromAndTravelTo(from, to, LocalTime.parse(travelTime));
 
@@ -80,7 +80,7 @@ public class PTController {
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
             info.put("Issues or announced dilations Duration", routes.getDelayingInfo());
-            info.put("Estimated dilation's time", routes.getDelayingTimeEstimation());
+            info.put("Estimated dilation minuts", routes.getDelayingTimeEstimation());
             return ResponseEntity.ok(info);
         }else {
             return ResponseEntity.notFound().build();
@@ -111,7 +111,7 @@ public class PTController {
     }
 
     @PostMapping("reportIssue/{id}")
-    public ResponseEntity<String>reportIssueAndDilation(@PathVariable Long id, @RequestParam String issue, @RequestParam String estimatedDilation){
+    public ResponseEntity<String>reportIssueAndDilation(@PathVariable Long id, @RequestParam String issue, @RequestParam int estimatedDilation){
         try {
            // LocalTime estimatedDilationTime=LocalTime.parse(estimatedDilation);
             ptServices.reportAnIssue(id, issue, estimatedDilation);
