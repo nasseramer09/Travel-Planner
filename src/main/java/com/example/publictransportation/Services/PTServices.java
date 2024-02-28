@@ -69,13 +69,19 @@ public class PTServices {
             return match == null;
     }
     //Needs to modify and implement calculation logik if startpoint is not a station gå to Inos api and get walkroute and time
-    public void  reportAnIssue(Long id, String issue, LocalTime estimatedDilation){
+    public void  reportAnIssue(Long id, String issue, String estimatedDilation){
         FakeCity route = fakeCityRepository.findAllById(id);
         if (route!=null){
-            LocalTime newDuration= route.getTravelDuration().plusMinutes(estimatedDilation.getMinute()).plusHours(estimatedDilation.getHour());
-            route.setDelayingInfo(issue);
-            route.setTravelDuration(newDuration);
-            fakeCityRepository.save(route);
+            try {
+            LocalTime dilation=LocalTime.parse(estimatedDilation);
+                LocalTime newDuration= route.getTravelDuration().plusMinutes(dilation.getMinute()).plusHours(dilation.getHour());
+
+                route.setDelayingInfo(issue);
+                route.setTravelDuration(newDuration);
+                fakeCityRepository.save(route);
+            }catch (Exception e){
+                System.out.println(" Invalid Format for estimated dilation");
+            }
         }
     }
     public List<FakeCity> getDelaysAndIssueInfo(){
