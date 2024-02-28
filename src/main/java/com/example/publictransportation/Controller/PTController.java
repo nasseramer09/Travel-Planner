@@ -79,7 +79,7 @@ public class PTController {
             info.put("Arrival time", routes.getArrivalTime());
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
-            info.put("Issues or announced dilations Duration", routes.getDelayingInfo());
+            info.put("Issues or announced dilations", routes.getDelayingInfo());
             info.put("Estimated dilation minuts", routes.getDelayingTimeEstimation());
             return ResponseEntity.ok(info);
         }else {
