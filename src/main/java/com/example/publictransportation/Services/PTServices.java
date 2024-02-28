@@ -4,6 +4,9 @@ import com.example.publictransportation.Model.FakeCity;
 import com.example.publictransportation.Repository.FakeCityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.RouteMatcher;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
@@ -25,30 +28,46 @@ public class PTServices {
     public FakeCity getTransportById(Long id){
         return fakeCityRepository.findAllById(id);
     }
-
+    WebClient webbClint = WebClient.create(" ");
     public FakeCity getRouteByTravelFromAndTravelTo(String from, String to, LocalTime departureTime){
+
         FakeCity route = new FakeCity();
+        boolean fromIsAStation=isStation(from);
+        boolean toIsAStation=isStation(to);
+        if (fromIsAStation&&toIsAStation) {
+            FakeCity fromStation = fakeCityRepository.findByStationNameIgnoreCase(from);
+            FakeCity toStation = fakeCityRepository.findByStationNameIgnoreCase(to);
+            if (fromStation != null && toStation != null) {
 
-        FakeCity fromStation=fakeCityRepository.findByStationNameIgnoreCase(from);
-        FakeCity toStation=fakeCityRepository.findByStationNameIgnoreCase(to);
-        if (fromStation !=null && toStation !=null){
+                long travelHours = fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.HOURS);
+                long traveMinutes = fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.MINUTES) % 60;
 
-            long travelHours=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.HOURS);
-            long traveMinutes=fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.MINUTES)%60;
+                LocalTime arrivalTime = departureTime.plusHours(travelHours).plusMinutes(traveMinutes);
 
-            LocalTime arrivalTime=departureTime.plusHours(travelHours).plusMinutes(traveMinutes);
+                route.setStationName(toStation.getStationName());
+                route.setTransportTyp(toStation.getTransportTyp());
+                route.setDepartureTime(departureTime);
+                route.setArrivalTime(arrivalTime);
+                route.setChanges(Math.abs(toStation.getChanges()) - fromStation.getChanges());
+                route.setTravelDuration(arrivalTime.minusHours(departureTime.getHour()).minusMinutes(departureTime.getMinute()));
+                return route;
+            } else if (fromIsAStation || toIsAStation){
+                Mono<FakeCity>responseMono = webbClint.get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/directions")
+                                .queryParam("origin", from)
+                                .queryParam("destination", to)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(FakeCity.class);
 
-            route.setStationName(toStation.getStationName());
-            route.setTransportTyp(toStation.getTransportTyp());
-            route.setDepartureTime(departureTime);
-            route.setArrivalTime(arrivalTime);
-            route.setChanges(Math.abs(toStation.getChanges()) - fromStation.getChanges());
-            route.setTravelDuration(arrivalTime.minusHours(departureTime.getHour()).minusMinutes(departureTime.getMinute()));
-            return route;
+                FakeCity routeRespons = responseMono.block();
+            }
         }else {
-            return  null;
+            return null;
         }
 
+        return route;
     }
 
 
