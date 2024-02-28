@@ -59,6 +59,8 @@ public class PTController {
             info.put("Arrival time", route.getArrivalTime());
             info.put("Changes", route.getChanges());
             info.put("Travel Duration", route.getTravelDuration());
+            info.put("Issues or announced dilations Duration", route.getDelayingInfo());
+            info.put("Estimated dilation's time", route.getDelayingTimeEstimation());
             routeInfo.add(info);
         }
         return ResponseEntity.ok(routeInfo);
@@ -77,6 +79,8 @@ public class PTController {
             info.put("Arrival time", routes.getArrivalTime());
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
+            info.put("Issues or announced dilations Duration", routes.getDelayingInfo());
+            info.put("Estimated dilation's time", routes.getDelayingTimeEstimation());
             return ResponseEntity.ok(info);
         }else {
             return ResponseEntity.notFound().build();
@@ -109,8 +113,8 @@ public class PTController {
     @PostMapping("reportIssue/{id}")
     public ResponseEntity<String>reportIssueAndDilation(@PathVariable Long id, @RequestParam String issue, @RequestParam String estimatedDilation){
         try {
-            LocalTime estimatedDilationTime=LocalTime.parse(estimatedDilation);
-            ptServices.reportAnIssue(id, issue, estimatedDilationTime);
+           // LocalTime estimatedDilationTime=LocalTime.parse(estimatedDilation);
+            ptServices.reportAnIssue(id, issue, estimatedDilation);
             return ResponseEntity.ok("Issue has been reported successfully ");
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Problem occurred while reporting an issue ");
