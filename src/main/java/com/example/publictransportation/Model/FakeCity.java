@@ -40,6 +40,9 @@ public class FakeCity {
     @Column(name="walkTime")
     private String walkTime;
 
+    @Column(name = "description")
+    private String description;
+
     @Column(name="favorite")
     private boolean favorite;
 
