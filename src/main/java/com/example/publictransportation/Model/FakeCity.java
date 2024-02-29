@@ -16,6 +16,12 @@ public class FakeCity {
     @Column(name = "stationName")
     private String stationName;
 
+    @Column(name = "departureFrom")
+    private String departureFrom;
+
+    @Column(name = "destinationTo")
+    private String destinationTo;
+
     @Column(name = "transportTyp")
     private String transportTyp;
 
