@@ -12,9 +12,6 @@ public interface FakeCityRepository extends JpaRepository<FakeCity, Long>{
     FakeCity findAllById(Long id);
 
     FakeCity findByStationNameIgnoreCase(String name);
-
-    List<FakeCity>findByChanges(int changes);
-
     List<FakeCity>findByDelayingInfoNotNull();
     List<FakeCity>findByFavorite(boolean favorite);
 
