@@ -20,15 +20,6 @@ import java.util.Map;
 public class PTController {
     @Autowired
    private PTServices ptServices;
-     @PostMapping()
-    public ResponseEntity<String> createRoute(@RequestBody FakeCity fakeCity){
-    try {
-        ptServices.createARoute(fakeCity);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Route created successfully");
-    }catch (Exception e){
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Problem occurred during route creation");
-    }
-    }
     @GetMapping("allTransportation")
     public ResponseEntity<List<Map<String, Object>>> getAllPublicTransportation(){
 
