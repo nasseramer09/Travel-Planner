@@ -31,7 +31,6 @@ public class PTServices {
     }
    public void createARoute(FakeCity transportRoute){
          fakeCityRepository.save(transportRoute);
-         System.out.println(transportRoute);
     }
 
     public FakeCity getTransportById(Long id){
@@ -42,6 +41,7 @@ public class PTServices {
         FakeCity route = new FakeCity();
         boolean fromIsAStation=isStation(from);
         boolean toIsAStation=isStation(to);
+
         if (fromIsAStation && toIsAStation) {
             FakeCity fromStation = fakeCityRepository.findByStationNameIgnoreCase(from);
             FakeCity toStation = fakeCityRepository.findByStationNameIgnoreCase(to);
