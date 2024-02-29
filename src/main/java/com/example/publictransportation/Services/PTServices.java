@@ -28,13 +28,19 @@ public class PTServices {
     public FakeCity getTransportById(Long id){
         return fakeCityRepository.findAllById(id);
     }
-    WebClient webbClint = WebClient.create(" ");
+    WebClient webbClint = WebClient.create("https://inotravelplanner.azurewebsites.net/GARDEN_MALL/LIBRARY");
     public FakeCity getRouteByTravelFromAndTravelTo(String from, String to, LocalTime departureTime){
 
         FakeCity route = new FakeCity();
         boolean fromIsAStation=isStation(from);
+        System.out.println(from);
+        System.out.println(fromIsAStation);
+
         boolean toIsAStation=isStation(to);
-        if (fromIsAStation&&toIsAStation) {
+        System.out.println(to);
+        System.out.println(toIsAStation);
+        System.out.println(departureTime);
+        if (fromIsAStation && toIsAStation) {
             FakeCity fromStation = fakeCityRepository.findByStationNameIgnoreCase(from);
             FakeCity toStation = fakeCityRepository.findByStationNameIgnoreCase(to);
             if (fromStation != null && toStation != null) {
@@ -43,28 +49,17 @@ public class PTServices {
                 long traveMinutes = fromStation.getTravelDuration().until(toStation.getTravelDuration(), ChronoUnit.MINUTES) % 60;
 
                 LocalTime arrivalTime = departureTime.plusHours(travelHours).plusMinutes(traveMinutes);
-
-                route.setStationName(toStation.getStationName());
-                route.setTransportTyp(toStation.getTransportTyp());
+                route.setDepartureFrom(from);
+                route.setDestinationTo(to);
                 route.setDepartureTime(departureTime);
+                route.setTransportTyp(toStation.getTransportTyp());
                 route.setArrivalTime(arrivalTime);
                 route.setChanges(Math.abs(toStation.getChanges()) - fromStation.getChanges());
+                route.setStationName(toStation.getStationName());
                 route.setTravelDuration(arrivalTime.minusHours(departureTime.getHour()).minusMinutes(departureTime.getMinute()));
+                System.out.println("service " + route);
                 return route;
-            } else if (fromIsAStation || toIsAStation){
-                Mono<FakeCity>responseMono = webbClint.get()
-                        .uri(uriBuilder -> uriBuilder
-                                .path("/directions")
-                                .queryParam("origin", from)
-                                .queryParam("destination", to)
-                                .build())
-                        .retrieve()
-                        .bodyToMono(FakeCity.class);
-
-                FakeCity routeRespons = responseMono.block();
             }
-        }else {
-            return null;
         }
 
         return route;
@@ -85,9 +80,9 @@ public class PTServices {
 
     private boolean isStation(String location){
         FakeCity match = fakeCityRepository.findByStationNameIgnoreCase(location);
-            return match == null;
+
+            return match !=null;
     }
-    //Needs to modify and implement calculation logik if startpoint is not a station gå to Inos api and get walkroute and time
     public void  reportAnIssue(Long id, String issue, int estimatedDilation){
         FakeCity route = fakeCityRepository.findAllById(id);
         if (route!=null){

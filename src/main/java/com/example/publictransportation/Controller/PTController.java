@@ -29,19 +29,6 @@ public class PTController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Problem occurred during route creation");
     }
     }
-
-  @PostMapping("searchMunicipalTransport")
-    public ResponseEntity<String>searchForTransportation(@RequestBody  String startPoint, String endPoint, LocalTime departureTime){
-
-
-        try {
-            ptServices.getRouteByTravelFromAndTravelTo(startPoint, endPoint, departureTime );
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Some thing went wrong ");
-        }
-
-    }
     @GetMapping("allTransportation")
     public ResponseEntity<List<Map<String, Object>>> getAllPublicTransportation(){
 
@@ -65,22 +52,23 @@ public class PTController {
         }
         return ResponseEntity.ok(routeInfo);
     }
-    @GetMapping("searchForTransportation")
-    public ResponseEntity<Map<String,Object>>transportationSearch(@RequestParam String from, @RequestParam String to, @RequestParam String travelTime){
+    @GetMapping("searchForTransportation/{from}/{to}/{travelTime}")
+    public ResponseEntity<Map<String,Object>>transportationSearch(@PathVariable String from, @PathVariable String to, @PathVariable String travelTime){
         try{
         FakeCity routes = ptServices.getRouteByTravelFromAndTravelTo(from, to, LocalTime.parse(travelTime));
 
         if (routes!=null){
             Map<String, Object> info = new HashMap<>();
-
-            info.put("Station Name", routes.getStationName());
+            info.put("from", routes.getDepartureFrom());
+            info.put("to", routes.getDestinationTo());
             info.put("Transport typ", routes.getTransportTyp());
             info.put("Departure time", routes.getDepartureTime());
             info.put("Arrival time", routes.getArrivalTime());
             info.put("Changes", routes.getChanges());
             info.put("Travel Duration", routes.getTravelDuration());
-            info.put("Issues or announced dilations", routes.getDelayingInfo());
+            info.put("Issues or announced dilations Duration", routes.getDelayingInfo());
             info.put("Estimated dilation minuts", routes.getDelayingTimeEstimation());
+            System.out.println(routes);
             return ResponseEntity.ok(info);
         }else {
             return ResponseEntity.notFound().build();
