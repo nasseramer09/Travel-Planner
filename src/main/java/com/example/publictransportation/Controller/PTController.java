@@ -68,6 +68,7 @@ public class PTController {
             info.put("Travel Duration", routes.getTravelDuration());
             info.put("Issues or announced dilations Duration", routes.getDelayingInfo());
             info.put("Estimated dilation minuts", routes.getDelayingTimeEstimation());
+            info.put("Estimated Walking in minuts", routes.getWalkTime());
             System.out.println(routes);
             return ResponseEntity.ok(info);
         }else {
