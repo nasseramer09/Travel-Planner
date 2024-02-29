@@ -35,14 +35,17 @@ public class FakeCityInitializer {
         ));
 
         fakeCities.add(new FakeCity(
-                "POLICE_STATION", "Train", 28, LocalTime.of(0,21,0),1,"Raimy", null
+                "POLICE_STATION", "Buss/Train", 28, LocalTime.of(0,21,0),1,"Raimy", null
         ));
         fakeCities.add(new FakeCity(
                 "Blue_street_station", "Train", 32, LocalTime.of(0,25,0),0,"Foggy", null
         ));
 
         fakeCities.add(new FakeCity(
-                "Out_station", "Train", 36, LocalTime.of(0,40,0),2,"Cloudy", null
+                "Out_station", "Buss/Train", 36, LocalTime.of(0,40,0),2,"Cloudy", null
+        ));
+        fakeCities.add(new FakeCity(
+                "InoStation", "Buss/Train", 40, LocalTime.of(0,48,0),3,"Cloudy", null
         ));
         fakeCityRepository.saveAll(fakeCities);
 
