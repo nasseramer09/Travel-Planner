@@ -3,8 +3,11 @@ package com.example.publictransportation.Services;
 import com.example.publictransportation.Model.FakeCity;
 import com.example.publictransportation.Repository.FakeCityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.RouteMatcher;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -17,6 +20,12 @@ public class PTServices {
 
     @Autowired
     private FakeCityRepository fakeCityRepository;
+
+    private final RestTemplate restTemplate;
+
+    public PTServices(RestTemplateBuilder restTemplateBuilder){
+        this.restTemplate=restTemplateBuilder.build();
+    }
     public List<FakeCity>getAllRouts(){
         return fakeCityRepository.findAll();
     }
@@ -28,18 +37,11 @@ public class PTServices {
     public FakeCity getTransportById(Long id){
         return fakeCityRepository.findAllById(id);
     }
-    WebClient webbClint = WebClient.create("https://inotravelplanner.azurewebsites.net/GARDEN_MALL/LIBRARY");
     public FakeCity getRouteByTravelFromAndTravelTo(String from, String to, LocalTime departureTime){
 
         FakeCity route = new FakeCity();
         boolean fromIsAStation=isStation(from);
-        System.out.println(from);
-        System.out.println(fromIsAStation);
-
         boolean toIsAStation=isStation(to);
-        System.out.println(to);
-        System.out.println(toIsAStation);
-        System.out.println(departureTime);
         if (fromIsAStation && toIsAStation) {
             FakeCity fromStation = fakeCityRepository.findByStationNameIgnoreCase(from);
             FakeCity toStation = fakeCityRepository.findByStationNameIgnoreCase(to);
@@ -60,6 +62,37 @@ public class PTServices {
                 System.out.println("service " + route);
                 return route;
             }
+        } else if (!isStation(from)||!isStation(to)) {
+
+            String apiurl =  "https://inotravelplanner.azurewebsites.net/" + from.toUpperCase() + "/"+ to.toUpperCase();
+            ResponseEntity<FakeCity[]> response = restTemplate.getForEntity(apiurl, FakeCity[].class);
+            FakeCity[] routeResponses = response.getBody();
+            System.out.println(routeResponses);
+            if (routeResponses !=null && routeResponses.length>0){
+                FakeCity routeResponse = routeResponses[0];
+                routeResponse.setDepartureFrom(from);
+                route.setDestinationTo(to);
+
+                int apiwalkingDuration=0;
+                for (FakeCity count:routeResponses
+                     ) {
+                    int minutesCount=count.getTravelDuration().getHour() * 60 + count.getTravelDuration().getMinute();
+                    apiwalkingDuration += minutesCount;
+                }
+
+                int totalDuration = apiwalkingDuration + departureTime.getHour() * 60 +departureTime
+                        .getMinute();
+                int totalHours=totalDuration/60;
+                int totalMinutes=totalDuration%60;
+                route.setWalkTime(String.valueOf(apiwalkingDuration));
+                route.setTravelDuration(LocalTime.of(totalHours,totalMinutes));
+                    return route;
+            }else {
+                return null;
+            }
+
+
+
         }
 
         return route;
